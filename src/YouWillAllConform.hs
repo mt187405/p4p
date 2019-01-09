@@ -1,7 +1,6 @@
 module YouWillAllConform where
 
-import Data.List (group)
-
+import Data.List (groupBy)
 
 type Cap = Char
 {-
@@ -31,7 +30,11 @@ cap2 = "FFBBBFBBBFFFF"
 --
 
 pleaseConform :: [Cap] -> [Cmd]
-pleaseConform = makeCommands . takeEvery2nd . gonyogonyo
+pleaseConform = makeCommands
+              . takeEvery2nd
+              . map mkRange
+              . groupBy eqCap
+              . zip [1 ..]
 
 makeCommands :: [Range] -> [Cmd]
 makeCommands = map mkCmd
@@ -39,7 +42,7 @@ makeCommands = map mkCmd
 mkCmd :: Range -> Cmd
 mkCmd (i, j)
   | i == j = showPos i ++ cmdStr
-  | i == j = showPos i ++ "から"
+  | i /= j = showPos i ++ "から"
           ++ showPos j ++ cmdStr
 
 cmdStr :: Cmd
@@ -53,10 +56,14 @@ takeEvery2nd []     = []
 takeEvery2nd (x:[]) = []
 takeEvery2nd (x:(y:zs)) = y : takeEvery2nd zs
 
-gonyogonyo :: [Cap] -> [Range]
-gonyogonyo = undefined
+eqCap :: (Pos, Cap) -> (Pos, Cap) -> Bool
+eqCap (_, c) (_, c') = (c == c')
 
-
+mkRange :: [(Pos, Cap)] -> Range
+mkRange xs = case head xs of
+  (hp, _) -> case last xs of
+    (lp, _) -> (hp, lp)
+    
 --
 
 sample :: [Int]
